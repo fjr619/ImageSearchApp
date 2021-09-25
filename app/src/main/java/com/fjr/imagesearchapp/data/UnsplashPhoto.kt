@@ -1,4 +1,4 @@
-package com.fjr.imagesearchapp
+package com.fjr.imagesearchapp.data
 
 
 /**
