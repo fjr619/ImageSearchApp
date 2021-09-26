@@ -27,8 +27,7 @@
         android:layout_above="@id/button_retry"
         android:layout_centerHorizontal="true"
         android:text="Results could not be loaded"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/button_retry"
@@ -36,8 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="Retry"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/text_view_empty"
@@ -45,7 +43,25 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="No results found for this query"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:clickable="true"
+        tools:visibility="visible"
         android:visibility="gone"
-        tools:visibility="visible" />
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/tvSuggestion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25dp"
+            android:text="ini seolah2 suggestion yang muncul"
+            android:textColor="@color/black"/>
+    </LinearLayout>
 
 </RelativeLayout>

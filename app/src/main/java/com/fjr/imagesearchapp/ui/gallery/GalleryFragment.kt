@@ -2,11 +2,9 @@ package com.fjr.imagesearchapp.ui.gallery
 
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -30,7 +28,7 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
     private val viewModel by viewModels<GalleryViewModel>()
 
     private var _binding: FragmentGalleryBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = _binding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,7 +40,7 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
             findNavController().navigate(action)
 
         }
-        binding.apply {
+        binding?.apply {
             recyclerView.apply {
                 setHasFixedSize(true)
                 itemAnimator = null
@@ -61,7 +59,7 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
 //            adapter.submitData(viewLifecycleOwner.lifecycle, it)
 //        }
 
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launchWhenStarted {
             viewModel.photosFLow.collectLatest {
                 if (it != null) {
                     adapter.submitData(viewLifecycleOwner.lifecycle, it)
@@ -70,7 +68,7 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         }
 
         adapter.addLoadStateListener { loadState ->
-            binding.apply {
+            binding?.apply {
                 progressBar.isVisible = loadState.source.refresh is LoadState.Loading
                 recyclerView.isVisible = loadState.source.refresh is LoadState.NotLoading
                 buttonRetry.isVisible = loadState.source.refresh is LoadState.Error
@@ -102,22 +100,32 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener{
             override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
                 Log.e("TAG","searchView setOnActionExpandListener")
+                binding?.view?.isVisible = true
                 return true
             }
 
             override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
                 Log.e("TAG","searchView onMenuItemActionCollapse")
+                binding?.view?.isVisible = false
                 return true
             }
         })
 
+        searchView.setOnQueryTextFocusChangeListener { view, hasFocus ->
+            Log.e("TAG", "hasFocus $hasFocus")
+            if (hasFocus) {
+                binding?.view?.isVisible = true
+            }
+        }
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-
                 if (query != null) {
-                    binding.recyclerView.scrollToPosition(0)
+                    binding?.view?.isVisible = false
+                    binding?.recyclerView?.scrollToPosition(0)
                     viewModel.searchPhotos(query)
                     searchView.clearFocus()
+                    searchItem.collapseActionView()
                 }
                 return true
             }
@@ -133,3 +141,10 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
         _binding = null
     }
 }
+
+val View.hasFocusRec: Boolean
+    get() = when {
+        isFocused -> true
+        this is ViewGroup -> children.any { it.hasFocusRec }
+        else -> false
+    }
