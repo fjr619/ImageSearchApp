@@ -16,7 +16,7 @@ import com.fjr.imagesearchapp.databinding.ItemUnsplashPhotoBinding
  * Created by Franky Wijanarko on 26/09/21.
  * frank.jr.619@gmail.com
  */
-class UnsplashPhotoAdapter :
+class UnsplashPhotoAdapter(private val goToDetail: (photo: UnsplashPhoto) -> Unit) :
     PagingDataAdapter<UnsplashPhoto, UnsplashPhotoAdapter.PhotoViewHolder>(PHOTO_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
@@ -36,6 +36,18 @@ class UnsplashPhotoAdapter :
 
     inner class PhotoViewHolder(private val binding: ItemUnsplashPhotoBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.root.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val item = getItem(position)
+                    item?.let {
+                        goToDetail(item)
+                    }
+                }
+            }
+        }
 
         fun bind(photo: UnsplashPhoto) {
             binding.apply {
