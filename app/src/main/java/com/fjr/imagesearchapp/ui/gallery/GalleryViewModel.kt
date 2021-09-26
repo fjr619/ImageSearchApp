@@ -1,11 +1,17 @@
 package com.fjr.imagesearchapp.ui.gallery
 
 import androidx.lifecycle.*
+import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.cachedIn
+import com.fjr.imagesearchapp.data.UnsplashPhoto
 import com.fjr.imagesearchapp.data.UnsplashRepository
 import dagger.assisted.Assisted
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -22,12 +28,33 @@ class GalleryViewModel @Inject constructor(
 
     private val currentQuery = state.getLiveData(CURRENT_QUERY, DEFAULT_QUERY)
 
-    val photos = currentQuery.switchMap { queryString ->
-       repository.getSearchResult(queryString).cachedIn(viewModelScope)
+//    var photosLD: LiveData<PagingData<UnsplashPhoto>> = MutableLiveData<PagingData<UnsplashPhoto>>()
+
+    private var _photosFLow = MutableStateFlow<PagingData<UnsplashPhoto>?>(null)
+        val photosFLow = _photosFLow.asStateFlow()
+
+    init {
+        getPhotos()
+    }
+
+//    val photos = currentQuery.switchMap { queryString ->
+//       repository.getSearchResult(queryString).cachedIn(viewModelScope)
+//    }
+
+    private fun getPhotos() {
+//        photosLD =  repository.getSearchResult(DEFAULT_QUERY).cachedIn(viewModelScope)
+        viewModelScope.launch {
+            currentQuery.value?.let {
+                repository.getSearchResultFlow(it).cachedIn(viewModelScope).collect {
+                    _photosFLow.value = it
+                }
+            }
+        }
     }
 
     fun searchPhotos(query: String) {
         currentQuery.value = query
+        getPhotos()
     }
 
     companion object {

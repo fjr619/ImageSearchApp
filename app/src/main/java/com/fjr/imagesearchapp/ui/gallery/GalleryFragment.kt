@@ -10,11 +10,13 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import com.fjr.imagesearchapp.R
 import com.fjr.imagesearchapp.databinding.FragmentGalleryBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
 
 /**
@@ -55,8 +57,16 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
             }
         }
 
-        viewModel.photos.observe(viewLifecycleOwner) {
-            adapter.submitData(viewLifecycleOwner.lifecycle, it)
+//        viewModel.photosLD.observe(viewLifecycleOwner) {
+//            adapter.submitData(viewLifecycleOwner.lifecycle, it)
+//        }
+
+        lifecycleScope.launchWhenCreated {
+            viewModel.photosFLow.collectLatest {
+                if (it != null) {
+                    adapter.submitData(viewLifecycleOwner.lifecycle, it)
+                }
+            }
         }
 
         adapter.addLoadStateListener { loadState ->

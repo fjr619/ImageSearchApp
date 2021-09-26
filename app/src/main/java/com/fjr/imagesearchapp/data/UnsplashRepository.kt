@@ -24,4 +24,14 @@ class UnsplashRepository @Inject constructor(private val unsplashApi: UnsplashAp
             ),
             pagingSourceFactory = { UnsplashPagingSource(unsplashApi, query) }
         ).liveData
+
+    fun getSearchResultFlow(query: String) =
+        Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                maxSize = 100,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { UnsplashPagingSource(unsplashApi, query) }
+        ).flow
 }
