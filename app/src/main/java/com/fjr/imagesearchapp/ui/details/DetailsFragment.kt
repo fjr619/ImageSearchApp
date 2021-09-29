@@ -15,6 +15,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.fjr.imagesearchapp.R
 import com.fjr.imagesearchapp.databinding.FragmentDetailsBinding
+import com.google.android.material.transition.MaterialContainerTransform
 
 
 /**
@@ -24,6 +25,12 @@ import com.fjr.imagesearchapp.databinding.FragmentDetailsBinding
 class DetailsFragment : Fragment(R.layout.fragment_details) {
 
     private val args by navArgs<DetailsFragmentArgs>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        sharedElementEnterTransition = MaterialContainerTransform()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

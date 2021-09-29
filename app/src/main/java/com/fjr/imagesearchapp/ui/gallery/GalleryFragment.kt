@@ -5,14 +5,19 @@ import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.children
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import com.fjr.imagesearchapp.R
 import com.fjr.imagesearchapp.databinding.FragmentGalleryBinding
+import com.google.android.material.transition.Hold
+import com.google.android.material.transition.MaterialElevationScale
+import com.google.android.material.transition.MaterialFadeThrough
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -30,15 +35,33 @@ class GalleryFragment : Fragment(R.layout.fragment_gallery) {
     private var _binding: FragmentGalleryBinding? = null
     private val binding get() = _binding
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enterTransition = MaterialFadeThrough().apply {
+            duration = 100
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         _binding = FragmentGalleryBinding.bind(view)
 
-        val adapter = UnsplashPhotoAdapter {
-            val action = GalleryFragmentDirections.actionGalleryFragmentToDetailsFragment(it)
-            findNavController().navigate(action)
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
 
+        val adapter = UnsplashPhotoAdapter { view, data ->
+            val extras = FragmentNavigatorExtras(view to "detailTransition")
+            val action = GalleryFragmentDirections.actionGalleryFragmentToDetailsFragment(data)
+
+            exitTransition = MaterialElevationScale(false).apply {
+                duration = 100
+            }
+            reenterTransition = MaterialElevationScale(true).apply {
+                duration = 100
+            }
+
+            findNavController().navigate(action, extras)
         }
         binding?.apply {
             recyclerView.apply {
